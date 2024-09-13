@@ -1,5 +1,6 @@
 package com.cibertec.adopta_una_mascota.security;
 
+import com.cibertec.adopta_una_mascota.service.TokenService;
 import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -54,10 +55,16 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         try {
             if (isJWTValid(request, response)) {
                 Claims claims = setSigningKey(request);
-                if (claims.get("authorities") != null) {
-                    setAuthentication(claims);
+                String token = request.getHeader(HEADER_AUTHORIZACION_KEY).replace(TOKEN_BEARER_PREFIX, "");
+                if (TokenService.isTokenRemoved(token)) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has been revoked");
+                    return;
                 } else {
-                    SecurityContextHolder.clearContext();
+                    if (claims.get("authorities") != null) {
+                        setAuthentication(claims);
+                    } else {
+                        SecurityContextHolder.clearContext();
+                    }
                 }
             } else {
                 SecurityContextHolder.clearContext();
@@ -69,5 +76,4 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
     }
-
-}
+    }
