@@ -54,7 +54,7 @@ public class UserController {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            TokenService tokenService= new TokenService();
+            TokenService tokenService = new TokenService();
             tokenService.eliminarToken(token);
             logger.info("Cierre de sesión exitoso para el token: {}", token);
             return ResponseEntity.ok(new LogoutResponse("01", "Cierre de sesión exitoso"));
